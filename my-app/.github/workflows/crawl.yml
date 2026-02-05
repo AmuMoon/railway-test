@@ -23,23 +23,9 @@ jobs:
       run: npm ci
       working-directory: ./my-app
       
-    - name: Run crawler
+    - name: Run crawler and sync to Railway
       env:
-        DATABASE_URL: ${{ secrets.RAILWAY_DATABASE_URL }}
-      run: |
-        # 创建数据目录
-        mkdir -p data
-        
-        # 运行爬虫脚本
-        node scripts/crawler-github.js
-        
-        # 输出结果
-        echo "Crawl completed"
+        RAILWAY_URL: https://railway-test-production-c4df.up.railway.app
+        CRAWL_API_KEY: ${{ secrets.CRAWL_API_KEY }}
+      run: node scripts/crawler-sync.js
       working-directory: ./my-app
-      
-    - name: Upload database artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: dota2-database
-        path: my-app/data/dev.db
-        retention-days: 7
