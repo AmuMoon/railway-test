@@ -63,7 +63,7 @@ export async function POST() {
           lose: player.lose,
           winRate: player.winRate,
           totalGames: player.totalGames,
-          recentMatches: [],
+          recentMatches: "[]",
         },
       });
 
