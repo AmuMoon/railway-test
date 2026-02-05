@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -50,8 +50,8 @@ model PlayerCache {
   winRate       Int      @default(0)
   totalGames    Int      @default(0)
   estimatedMmr  Int?      // 估算MMR
-  // 最近5场比赛结果 (JSON格式: [{matchId, heroId, heroName, result, kills, deaths, assists, startTime}])
-  recentMatches Json?
+  // 最近5场比赛结果 (存储为字符串，应用层解析)
+  recentMatches String?
   lastUpdated   DateTime @default(now())
   
   @@index([steamId])
