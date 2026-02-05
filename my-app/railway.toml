@@ -8,7 +8,7 @@ nixPkgs = ["nodejs_20", "npm-10_x"]
 cmds = ["npm ci"]
 
 [build.nixpacksPlan.phases.build]
-cmds = ["npx prisma generate", "npm run build"]
+cmds = ["rm -rf node_modules/.prisma", "npx prisma generate", "npm run build"]
 
 [deploy]
 startCommand = "npm run start"
