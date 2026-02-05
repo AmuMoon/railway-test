@@ -92,7 +92,7 @@ async function fetchPlayerData(accountId: string) {
       recentMatches,
     };
   } catch (error) {
-    console.error(`Failed to fetch player ${steamId}:`, error);
+    console.error(`Failed to fetch player ${accountId}:`, error);
     return null;
   }
 }
