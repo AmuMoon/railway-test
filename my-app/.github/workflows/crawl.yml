@@ -1,0 +1,45 @@
+name: Crawl Dota 2 Data
+
+on:
+  schedule:
+    # 每小时运行一次
+    - cron: '0 * * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ./my-app
+      
+    - name: Run crawler
+      env:
+        DATABASE_URL: ${{ secrets.RAILWAY_DATABASE_URL }}
+      run: |
+        # 创建数据目录
+        mkdir -p data
+        
+        # 运行爬虫脚本
+        node scripts/crawler-github.js
+        
+        # 输出结果
+        echo "Crawl completed"
+      working-directory: ./my-app
+      
+    - name: Upload database artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dota2-database
+        path: my-app/data/dev.db
+        retention-days: 7
