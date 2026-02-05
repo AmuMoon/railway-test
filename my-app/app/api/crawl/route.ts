@@ -3,51 +3,50 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// 36位选手配置
+// 36位选手配置 (OpenDota account ID)
 const PLAYERS = [
-  { steamId: "141869520", name: "选手1" },
-  { steamId: "174245541", name: "选手2" },
-  { steamId: "117116280", name: "选手3" },
-  { steamId: "157428753", name: "选手4" },
-  { steamId: "146389394", name: "选手5" },
-  { steamId: "255710331", name: "选手6" },
-  { steamId: "900466924", name: "选手7" },
-  { steamId: "183746899", name: "选手8" },
-  { steamId: "366757026", name: "选手9" },
-  { steamId: "1101454493", name: "选手10" },
-  { steamId: "149901486", name: "选手11" },
-  { steamId: "364671117", name: "选手12" },
-  { steamId: "216565503", name: "选手13" },
-  { steamId: "124106189", name: "选手14" },
-  { steamId: "215850857", name: "选手15" },
-  { steamId: "168908562", name: "选手16" },
-  { steamId: "301128180", name: "选手17" },
-  { steamId: "136611464", name: "选手18" },
-  { steamId: "103091764", name: "选手19" },
-  { steamId: "362233986", name: "选手20" },
-  { steamId: "294993528", name: "选手21" },
-  { steamId: "137830756", name: "选手22" },
-  { steamId: "350929386", name: "选手23" },
-  { steamId: "178623013", name: "选手24" },
-  { steamId: "311081131", name: "选手25" },
-  { steamId: "159284323", name: "选手26" },
-  { steamId: "182770713", name: "选手27" },
-  { steamId: "245468093", name: "选手28" },
-  { steamId: "199204903", name: "选手29" },
-  { steamId: "353534498", name: "选手30" },
-  { steamId: "209047428", name: "选手31" },
-  { steamId: "182463905", name: "选手32" },
-  { steamId: "355150943", name: "选手33" },
-  { steamId: "350779393", name: "选手34" },
-  { steamId: "303216728", name: "选手35" },
-  { steamId: "142603252", name: "选手36" },
+  { accountId: "141869520", name: "百京泰迪熊" },
+  { accountId: "174245541", name: "选手2" },
+  { accountId: "117116280", name: "选手3" },
+  { accountId: "157428753", name: "选手4" },
+  { accountId: "146389394", name: "选手5" },
+  { accountId: "255710331", name: "选手6" },
+  { accountId: "900466924", name: "选手7" },
+  { accountId: "183746899", name: "选手8" },
+  { accountId: "366757026", name: "选手9" },
+  { accountId: "1101454493", name: "选手10" },
+  { accountId: "149901486", name: "选手11" },
+  { accountId: "364671117", name: "选手12" },
+  { accountId: "216565503", name: "选手13" },
+  { accountId: "124106189", name: "选手14" },
+  { accountId: "215850857", name: "选手15" },
+  { accountId: "168908562", name: "选手16" },
+  { accountId: "301128180", name: "选手17" },
+  { accountId: "136611464", name: "选手18" },
+  { accountId: "103091764", name: "选手19" },
+  { accountId: "362233986", name: "选手20" },
+  { accountId: "294993528", name: "选手21" },
+  { accountId: "137830756", name: "选手22" },
+  { accountId: "350929386", name: "选手23" },
+  { accountId: "178623013", name: "选手24" },
+  { accountId: "311081131", name: "选手25" },
+  { accountId: "159284323", name: "选手26" },
+  { accountId: "182770713", name: "选手27" },
+  { accountId: "245468093", name: "选手28" },
+  { accountId: "199204903", name: "选手29" },
+  { accountId: "353534498", name: "选手30" },
+  { accountId: "209047428", name: "选手31" },
+  { accountId: "182463905", name: "选手32" },
+  { accountId: "355150943", name: "选手33" },
+  { accountId: "350779393", name: "选手34" },
+  { accountId: "303216728", name: "选手35" },
+  { accountId: "142603252", name: "选手36" },
 ];
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function fetchPlayerData(steamId: string) {
+async function fetchPlayerData(accountId: string) {
   try {
-    const accountId = (BigInt(steamId) - BigInt("76561197960265728")).toString();
 
     // 获取玩家基本信息
     const playerRes = await fetch(`https://api.opendota.com/api/players/${accountId}`, {
@@ -82,8 +81,8 @@ async function fetchPlayerData(steamId: string) {
     }
 
     return {
-      steamId,
       accountId,
+      steamId: playerData.profile?.steamid || null,
       personaname: playerData.profile?.personaname || null,
       avatar: playerData.profile?.avatar || null,
       rankTier: playerData.rank_tier || null,
@@ -114,14 +113,14 @@ export async function POST() {
   try {
     for (const player of PLAYERS) {
       try {
-        const data = await fetchPlayerData(player.steamId);
+        const data = await fetchPlayerData(player.accountId);
 
         if (data) {
           const totalGames = data.win + data.lose;
           const winRate = totalGames > 0 ? Math.round((data.win / totalGames) * 100) : 0;
 
           await prisma.playerCache.upsert({
-            where: { steamId: player.steamId },
+            where: { accountId: player.accountId },
             update: {
               name: player.name,
               personaname: data.personaname,
@@ -136,8 +135,8 @@ export async function POST() {
               lastUpdated: new Date(),
             },
             create: {
-              steamId: player.steamId,
-              accountId: data.accountId,
+              steamId: data.steamId || player.accountId,
+              accountId: player.accountId,
               name: player.name,
               personaname: data.personaname,
               avatar: data.avatar,
@@ -153,7 +152,7 @@ export async function POST() {
           results.success++;
         } else {
           results.failed++;
-          results.errors.push(`Failed: ${player.name} (${player.steamId})`);
+          results.errors.push(`Failed: ${player.name} (${player.accountId})`);
         }
 
         // 500ms 延迟避免 rate limit
