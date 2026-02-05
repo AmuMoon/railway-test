@@ -11,6 +11,6 @@ cmds = ["npm ci"]
 cmds = ["npm run build"]
 
 [deploy]
-startCommand = "npm start"
+startCommand = "mkdir -p /app/data && npx prisma migrate deploy && npm start"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 100
