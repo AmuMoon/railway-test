@@ -1,0 +1,4 @@
+# Force Railway to rebuild from scratch
+.next/
+node_modules/.cache/
+*.log
