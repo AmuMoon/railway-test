@@ -68,15 +68,7 @@ export async function POST() {
       });
 
       if (result) {
-        const existing = await prisma.playerCache.findUnique({
-          where: { accountId: player.accountId },
-          select: { createdAt: true },
-        });
-        if (existing && existing.createdAt > new Date(Date.now() - 60000)) {
-          inserted++;
-        } else {
-          updated++;
-        }
+        inserted++;
       }
     }
 
