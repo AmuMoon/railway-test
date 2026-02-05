@@ -2,10 +2,10 @@
 builder = "nixpacks"
 
 [build.nixpacksPlan.phases.setup]
-nixPkgs = ["nodejs_20", "npm-10_x"]
+nixPkgs = ["nodejs_20", "npm-10_x", "postgresql"]
 
 [build.nixpacksPlan.phases.install]
-cmds = ["npm ci", "npx prisma generate"]
+cmds = ["npm ci", "cat prisma/schema.prisma", "npx prisma generate"]
 
 [build.nixpacksPlan.phases.build]
 cmds = ["rm -rf .next", "npm run build"]
