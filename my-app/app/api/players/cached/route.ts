@@ -42,7 +42,7 @@ export async function GET() {
       mmr_estimate: {
         estimate: p.estimatedMmr || 0,
       },
-      recent_matches: p.recentMatches,
+      recent_matches: p.recentMatches ? JSON.parse(p.recentMatches) : [],
       last_updated: p.lastUpdated,
     }));
 
