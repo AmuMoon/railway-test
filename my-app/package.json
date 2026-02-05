@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "prisma generate && next start",
+    "start": "npx prisma generate && node .next/standalone/server.js",
     "lint": "eslint",
     "crawl": "tsx scripts/crawler.ts",
     "crawl:prod": "node dist/scripts/crawler.js",

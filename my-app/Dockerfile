@@ -41,5 +41,5 @@ EXPOSE 3000
 
 ENV PORT=3000
 
-# Generate Prisma client at runtime and start the app
-CMD npx prisma generate && node server.js
+# Start the app
+CMD ["npm", "start"]
