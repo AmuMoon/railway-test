@@ -1,5 +1,0 @@
-[phases.build]
-cmds = ['cd my-app && npm ci', 'cd my-app && npx prisma generate --schema=./prisma/schema.prisma', 'cd my-app && npm run build']
-
-[phases.setup]
-nixPkgs = ['nodejs_20', 'npm-10_x']
