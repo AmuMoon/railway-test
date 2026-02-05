@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  steamId   String   @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  matches   Match[]
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  matchId     String   @unique
+  playerId    String
+  player      Player   @relation(fields: [playerId], references: [id])
+  heroId      Int
+  heroName    String
+  kills       Int
+  deaths      Int
+  assists     Int
+  result      String   // win/loss
+  duration    Int      // in seconds
+  gameMode    String
+  lobbyType   String
+  startTime   DateTime
+  createdAt   DateTime @default(now())
+}
+
+// 玩家缓存数据 - 用于定时爬虫存储
+model PlayerCache {
+  id            String   @id @default(cuid())
+  steamId       String   @unique
+  accountId     String   @unique
+  name          String   // 玩家名称（中文备注）
+  personaname   String?  // Steam昵称
+  avatar        String?  // 头像URL
+  rankTier      Int?      // 真实段位 (如 35 = 中军5星)
+  competitiveRank String? // 天梯分数显示
+  win           Int      @default(0)
+  lose          Int      @default(0)
+  winRate       Int      @default(0)
+  totalGames    Int      @default(0)
+  estimatedMmr  Int?      // 估算MMR
+  // 最近5场比赛结果 (JSON格式: [{matchId, heroId, heroName, result, kills, deaths, assists, startTime}])
+  recentMatches Json?
+  lastUpdated   DateTime @default(now())
+  
+  @@index([steamId])
+  @@index([rankTier])
+  @@index([lastUpdated])
+}
