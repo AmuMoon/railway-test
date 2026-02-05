@@ -2,8 +2,8 @@ name: Crawl Dota 2 Data
 
 on:
   schedule:
-    # 每小时运行一次
-    - cron: '0 * * * *'
+    # 每12小时运行一次 (每天 00:00 和 12:00)
+    - cron: '0 */12 * * *'
   workflow_dispatch: # 允许手动触发
 
 jobs:
