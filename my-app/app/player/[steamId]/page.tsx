@@ -119,50 +119,17 @@ export default function PlayerPage() {
       try {
         setLoading(true);
         
-        // 首先尝试从缓存获取数据
-        const cachedRes = await fetch(`/api/player-cached/${steamId}`);
-        
-        if (cachedRes.ok) {
-          const cachedData = await cachedRes.json();
-          setPlayer({
-            profile: cachedData.profile,
-            rank_tier: cachedData.rank_tier,
-            leaderboard_rank: cachedData.competitive_rank,
-            win: cachedData.win,
-            lose: cachedData.lose,
-            win_rate: cachedData.win_rate,
-            total_games: cachedData.total_games,
-          });
-          
-          // 转换缓存的比赛数据格式
-          if (cachedData.recent_matches) {
-            const formattedMatches = cachedData.recent_matches.map((m: any) => ({
-              match_id: m.matchId,
-              hero_id: m.heroId,
-              kills: m.kills,
-              deaths: m.deaths,
-              assists: m.assists,
-              radiant_win: m.result === "win",
-              player_slot: 0, // 缓存中没有这个信息
-              duration: 0,
-              game_mode: 0,
-              lobby_type: 0,
-              start_time: m.startTime,
-            }));
-            setMatches(formattedMatches);
-          }
-        } else {
-          // 缓存未命中，回退到直接 API
-          const playerRes = await fetch(`/api/player/${steamId}`);
-          if (!playerRes.ok) throw new Error("Failed to fetch player");
-          const playerData = await playerRes.json();
-          setPlayer(playerData);
+        // Fetch player info
+        const playerRes = await fetch(`/api/player/${steamId}`);
+        if (!playerRes.ok) throw new Error("Failed to fetch player");
+        const playerData = await playerRes.json();
+        setPlayer(playerData);
 
-          const matchesRes = await fetch(`/api/player/${steamId}/matches`);
-          if (!matchesRes.ok) throw new Error("Failed to fetch matches");
-          const matchesData = await matchesRes.json();
-          setMatches(matchesData);
-        }
+        // Fetch matches
+        const matchesRes = await fetch(`/api/player/${steamId}/matches`);
+        if (!matchesRes.ok) throw new Error("Failed to fetch matches");
+        const matchesData = await matchesRes.json();
+        setMatches(matchesData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
