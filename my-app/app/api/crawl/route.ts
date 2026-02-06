@@ -47,7 +47,6 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchPlayerData(accountId: string) {
   try {
-
     // 获取玩家基本信息
     const playerRes = await fetch(`https://api.opendota.com/api/players/${accountId}`, {
       headers: { "User-Agent": "Dota2-Leaderboard/1.0" },
@@ -59,6 +58,22 @@ async function fetchPlayerData(accountId: string) {
     }
 
     const playerData = await playerRes.json();
+
+    // 获取胜负数据 (win/lose)
+    let win = 0;
+    let lose = 0;
+    try {
+      const wlRes = await fetch(`https://api.opendota.com/api/players/${accountId}/wl`, {
+        headers: { "User-Agent": "Dota2-Leaderboard/1.0" },
+      });
+      if (wlRes.ok) {
+        const wlData = await wlRes.json();
+        win = wlData.win || 0;
+        lose = wlData.lose || 0;
+      }
+    } catch (e) {
+      console.error(`Failed to fetch wl for ${accountId}:`, e);
+    }
 
     // 获取最近比赛
     const matchesRes = await fetch(
@@ -87,8 +102,8 @@ async function fetchPlayerData(accountId: string) {
       avatar: playerData.profile?.avatar || null,
       rankTier: playerData.rank_tier || null,
       competitiveRank: playerData.competitive_rank?.toString() || null,
-      win: playerData.win || 0,
-      lose: playerData.lose || 0,
+      win,
+      lose,
       recentMatches,
     };
   } catch (error) {
